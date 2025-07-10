@@ -36,8 +36,43 @@
     - Adminer or phpMyAdmin for database UI
     - Email service, FTP, monitoring, etc.
 ## My approach
+- Setup project file structure
 - Base OS choice: Debian bookworm
     - Debian release stable version: https://www.debian.org/releases/
+- Build docker image for each service
+    - Start with MariaDB
+        - Why first
+            - WordPress depends on a database exist before it can connect, init, or install
+            - It's a stateful service - needs volume, credentials, and presistant storage setup
+        - What to do
+            - Set up user, password, database
+            - Store credentials in `.env`
+            - Expose internal port
+            - Test that the DB container runs correctly
+    - Then Nginx (Reverse Proxy / Web Server)
+        - Why second
+            - NGINX is the **entry point** to your app — it handles HTTPS and routing.
+            - You can test it **without WordPress** by serving a static page.
+            - It's useful to validate:
+            - SSL/TLS configuration
+            - HTTP to HTTPS redirection
+            - Port exposure
+            - Docker networking
+        - What to do
+            - Serve a test `index.html`
+            - Generate and use self-signed TLS certificates
+            - Configure reverse proxy (FastCGI or PHP backend later)
+    - Finally WordPress (PHP app)
+        - Why last
+            - WordPress needs **both the database and NGINX** to function:
+            - It connects to MariaDB to initialize and load content
+            - It’s proxied through NGINX
+            - Installing WordPress early would result in connection errors
+        - What to do
+            - Download WordPress manually (no Docker Hub)
+            - Set up `wp-config.php` using env vars for the DB
+            - Mount a volume for persistent content
+            - Confirm full setup via browser (localhost)
 
 ## Notes
 ### What's docker？
@@ -145,7 +180,44 @@
     - Containers are much **more lightweight than VMs** because they don't require a full OS for each instance. 
     - This allows you to run more applications on the same infrastructure, with less overhead.
     - Containers are also **portable, self-contained, and isolated from each other and the host**, making them ideal for consistent development and deployment across environments.
-### 
+### PID 1 and relation with Dockerfile
+- What's PID 1?
+    - In Linux, every running process has a Process ID (PID).
+    - The first process in any Linux system or container always has PID 1.
+    - This process becomes the "init process", responsible for:
+        - Reaping zombie processes (defunct children)
+        - Passing/handling signals (e.g., SIGTERM, SIGINT)
+- In Docker, what's PID 1?
+    - When a container starts, whatever command you define as the entrypoint or CMD becomes PID 1 inside that container.
+    - Example: ```CMD ["nginx", "-g", "daemon off;"]```
+        - Here nginx becomes PID 1
+- Why this matters in Dockerfile
+    - Most processes aren’t written to behave like a proper ```init```
+    - They don’t forward signals correctly
+    - They don’t reap zombie child processes
+    - This leads to:
+        - Containers not shutting down cleanly
+        - Memory leaks (zombie processes)
+        - Services that hang on ```docker stop```
+- Best practices for Dockerfile PID 1
+    - Use a proper init system if needed
+        - Use a tiny init system like ```tini```
+        - Example: tini becomes PID 1 and handles signals + zombie reaping properly.
+            ```
+            ENTRYPOINT ["/tini", "--"]
+            CMD ["your-app"]
+            ```
+    - One process per container (when possible)
+        - Docker is designed for single-process containers
+- How to test PID 1
+    - Inside a container
+        ```
+        ps -e -o pid,ppid,cmd
+        ```
+    - Or run
+        ```
+        docker exec <container> ps -p 1 -o cmd=
+        ```
 
 
 ### Reference
