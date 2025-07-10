@@ -22,10 +22,12 @@
     - Security: set strong pwd, limit permissions, use HTTPS
     - Automation: automate builds and service restarts
 - Project constraints
+    - Use penultimate version of Alpine or Debian.
     - Everything must run inside containers.
     - You cannot use pre-built images (like official WordPress or MariaDB ones).
     - You must build each service image yourself.
     - Data must persist even when containers are restarted.
+    - Use docker compose to orchestrate everything.
     - Services must be reachable only via defined ports or internal Docker networks.
     - Some security best practices are enforced (e.g., HTTPS, non-root users).
 - Bonus
@@ -33,6 +35,9 @@
     - Portainer for managing containers visually
     - Adminer or phpMyAdmin for database UI
     - Email service, FTP, monitoring, etc.
+## My approach
+- Base OS choice: Debian bookworm
+    - Debian release stable version: https://www.debian.org/releases/
 
 ## Notes
 ### What's docker？
@@ -140,6 +145,8 @@
     - Containers are much **more lightweight than VMs** because they don't require a full OS for each instance. 
     - This allows you to run more applications on the same infrastructure, with less overhead.
     - Containers are also **portable, self-contained, and isolated from each other and the host**, making them ideal for consistent development and deployment across environments.
+### 
+
 
 ### Reference
 - [Docker docs](https://docs.docker.com/get-started/docker-overview/)
