@@ -37,6 +37,41 @@
     - Email service, FTP, monitoring, etc.
 ## My approach
 - Setup project file structure
+```
+42_inception/
+├── .env                       # Shared environment variables (DB, WP, etc.)
+├── docker-compose.yml         # Main orchestrator for all services
+├── srcs/                      # All build sources
+│
+├── srcs/requirements/
+│   ├── mariadb/
+│   │   ├── Dockerfile
+│   │   ├── tools/
+│   │   │   └── init_mariadb.sh
+│   │   ├── conf/
+│   │   │   └── custom.cnf       # Optional MariaDB config override
+│   │   └── .dockerignore        # Optional: ignore temp files, logs
+│
+│   ├── wordpress/
+│   │   ├── Dockerfile
+│   │   ├── tools/
+│   │   │   └── init_wordpress.sh
+│   │   ├── conf/
+│   │   │   └── wp-config.php     # Or copied/generated in script
+│   │   └── .dockerignore
+│
+│   ├── nginx/
+│   │   ├── Dockerfile
+│   │   ├── conf/
+│   │   │   └── default.conf      # NGINX site config
+│   │   ├── tools/
+│   │   │   └── entrypoint.sh     # Optional: custom logic
+│   │   └── .dockerignore
+│
+│   ├── bonus/                    # (optional) static site, redis, etc.               
+│
+└── README.md
+```
 - Base OS choice: Debian bookworm
     - Debian release stable version: https://www.debian.org/releases/
 - Build docker image for each service
@@ -218,6 +253,61 @@
         ```
         docker exec <container> ps -p 1 -o cmd=
         ```
+### What's Docker Volume
+A **Docker volume** is a way to **store data outside your container’s filesystem**, so that the data:
+
+- ✅ Survives container restarts
+- ✅ Persists even if the container is deleted
+- ✅ Can be shared between multiple containers
+#### Why Use Volumes?
+
+By default, when a Docker container is removed, all its data is **lost** — including:
+
+- WordPress uploads
+- MySQL databases
+- Logs and configuration changes
+
+If you want this data to persist between builds, you need to use a **volume**.
+#### Example: Volume in `docker-compose.yml`
+
+```yaml
+services:
+  mariadb:
+    build: ./mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
+```
+### Why install ```mariadb-server``` not ```mariadb```
+mariadb-server is the actual database server package
+- The mariaDB daemon (```mysqld```): the core process that runs the database
+- Startup scripts to manage the service
+- Config templates (eg. ```/etc/mysql/```)
+- Dependencies like client lib and tools
+### Principle of least privilege
+Running as ```root``` inside containers is a major security vulnerability:
+- Container Escape: If someone exploits your MariaDB and the container is running as root, they get root access to the host system
+- File System Access: Root can read/write ANY file on mounted volumes
+- Process Privileges: Root can kill other processes, change system settings
+- Network Access: Root can bind to privileged ports (<1024)
+### What's ```mysqld_safe```
+- It’s a shell script provided by MySQL and MariaDB.
+- Its job is to safely start the mysqld daemon (the actual database server process).
+- It includes extra checks, logging, and crash recovery features.
+- Compared to ```mysqld```
+
+    | Feature                         | `mysqld_safe`                      | `mysqld`         |
+    | ------------------------------- | ---------------------------------- | ---------------- |
+    | Starts `mysqld`                 | ✅                                  | ✅                |
+    | Restarts `mysqld` if it crashes | ✅ Automatically restarts it        | ❌ Only runs once |
+    | Handles logs                    | ✅ Redirects to log files safely    | ❌ Basic logging  |
+    | Reads extra config              | ✅ Can read from `/etc/my.cnf` etc. | ✅                |
+    | Runs in background              | ✅ (uses `nohup`, forked)           | ✅ or foreground  |
+
+
+
 
 
 ### Reference
