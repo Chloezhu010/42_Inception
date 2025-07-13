@@ -84,6 +84,30 @@
             - Store credentials in `.env`
             - Expose internal port
             - Test that the DB container runs correctly
+        - Test cmd
+            ```
+            // test root login to MariaDB
+            docker exec -it mariadb mysql -u root -p{RootPwd}
+
+            // run SQL checks inside MariaDB
+            SHOW DATABASES; // check the database was created
+            SELECT user, host FROM mysql.user; // check users
+            SHOW GRANTS FOR 'wpuser'@'%'; // check permissions
+            exit; // exit mariadb
+
+            // test user login to MariaDB
+            docker exec -it mariadb mysql -u wp_user -p{UserPwd}
+
+            // verify persistence
+            docker compose down // stop everything
+            docker compose up mariadb // restart
+            // reconnect and confirm the DB is still there
+
+            // complete reinitialize
+            docker compose down
+            docker volume rm $(docker volume ls -q | grep mariadb)
+            docker compose up mariadb
+            ```
     - Then Nginx (Reverse Proxy / Web Server)
         - Why second
             - NGINX is the **entry point** to your app — it handles HTTPS and routing.

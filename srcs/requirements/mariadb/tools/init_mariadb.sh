@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# check if dir exists & init
-if [ ! -d "/var/lib/mysql/mysql" ]; then
+# check if the wordpress database directory exists
+if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
     echo "Init MariaDB..."
 
     # init the db
@@ -20,8 +20,11 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
     # create the db and users
     mysql -u root << EOF
--- set root password
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASSWORD}');
+-- reload privilege tables
+FLUSH PRIVILEGES;
+
+-- set root password (using ALTER USER for newer MariaDB versions)
+ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${MYSQL_ROOT_PASSWORD}');
 
 -- create database
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
@@ -32,7 +35,7 @@ GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 
 -- create wordpress admin user
 CREATE USER IF NOT EXISTS '${MYSQL_ADMIN_USER}'@'%' IDENTIFIED BY '${MYSQL_ADMIN_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_ADMIN_USER}'@'%';
+GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';
 
 -- remove anonymous users
 DELETE FROM mysql.user WHERE User='';
@@ -49,9 +52,9 @@ EOF
     wait $MYSQL_PID
 
     echo "Database init complete"
-    else
+else
     echo "Database already init"
-    fi
+fi
 
 # start mariadb normally in foreground
 echo "Starting MariaDB..."

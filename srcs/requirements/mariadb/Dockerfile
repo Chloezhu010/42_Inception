@@ -17,7 +17,7 @@ RUN mkdir -p /var/lib/mysql \
 RUN mkdir -p /run/mysqld \
     && chown -R mysql:mysql /run/mysqld
 
-# config env var
+# config db
 COPY ./tools/init_mariadb.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init_mariadb.sh
 
