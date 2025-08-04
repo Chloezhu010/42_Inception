@@ -134,6 +134,20 @@
             - Confirm full setup via browser (localhost)
 
 ## Notes
+### What's mariaDB, wordpress, nginx? 
+- MariaDB
+    - A db server (fork of Mysql)
+    - Store your data for wordpress, eg. blog post, user, comments, settings etc.
+    - Without it, wordpress won't have a place to keep dynamic content
+- Wordpress
+    - A php-based web app (a CMS: content manager system)
+    - It's the actual website you'll access through your browser
+    - Connect to mariaDB to save & retrieve data
+- Nginx
+    - A web server: it listens for incoming HTTP(S) requests
+    - Server static content (html, css, js, image) and forward php requests to wordpress
+    - Here it's also used to termiante SSL
+
 ### What's docker？
 #### Intro 
 - Docker is a popular open-source project written in go and developed by Dotcloud (A PaaS Company).
