@@ -1,30 +1,35 @@
 #!/bin/bash
 
-# start mariadb in the background
-service mysql start
+# ensure socket dir exists
+mkdir -p /run/mysqld
+chown mysql:mysql /run/mysqld
 
-# create wordpress database
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
+# check if this is the 1st run (no mysql system db)
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    # initialize the database directory
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+    # start mariadb in the background
+    mysqld_safe --user=mysql --skip-grant-tables &
+    # wait for mariadb to start
+    until mysqladmin ping --silent; do
+        sleep 1
+    done
 
-# create normal wordpress user and grant privileges
-# if the user already exists, it will not create a new one
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
-    "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
-    "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';"
+    # set root password and create database and users
+    mysql -u root << EOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+CREATE USER IF NOT EXISTS '${MYSQL_ADMIN_USER}'@'%' IDENTIFIED BY '${MYSQL_ADMIN_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';
+FLUSH PRIVILEGES;
+EOF
 
-# create admin user and grant privileges
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
-    "CREATE USER IF NOT EXISTS '${MYSQL_ADMIN_USER}'@'%' IDENTIFIED BY '${MYSQL_ADMIN_PASSWORD}';"
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
-    "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';"
-
-# save changes: reload user permissions
-# this is necessary to ensure that the new user and privileges are recognized
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
-
-# stop mariadb
-mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
+    # stop temporary server
+    mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
+fi
 
 # launch mariadb in safe mode
+# exec replaces the current shell with the command, making mysqld_safe PID 1
 exec mysqld_safe
