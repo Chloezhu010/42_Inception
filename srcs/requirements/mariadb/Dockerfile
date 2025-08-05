@@ -2,30 +2,20 @@
 FROM debian:bookworm
 
 # install mariaDB
+# refresh package index
 RUN apt-get update \
+    # install mariadb server
     && apt-get install -y mariadb-server \
-    # cleanup apt caches to reduce image size, eg. version nb, dependencies etc.
+    # cleanup apt caches to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
-# create dir for mariadb data (persistent data)
-# incl. db file, table structures, indexes, log files, config state
-RUN mkdir -p /var/lib/mysql \
-    && chown -R mysql:mysql /var/lib/mysql
+# copy init script into the container
+COPY tools/init_mariadb.sh /init_mariadb.sh
+RUN chmod +x /init_mariadb.sh
 
-# create dir for run files (temp runtime files)
-# incl. socket file, PID file, lock file
-RUN mkdir -p /run/mysqld \
-    && chown -R mysql:mysql /run/mysqld
-
-# config db
-COPY ./tools/init_mariadb.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/init_mariadb.sh
-
-# expose port
+# listen on port 3306 (mariadb default port)
 EXPOSE 3306
 
-# run as mysql user
-USER mysql
-
-# CMD to run mariadb server directly
-ENTRYPOINT ["/usr/local/bin/init_mariadb.sh"]
+# cmd to run when the container starts
+# launch mariadb in a "safe" mode (auto restarts if it crashes)
+CMD ["mysqld_safe"]

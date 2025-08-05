@@ -1,61 +1,30 @@
 #!/bin/bash
 
-# check if the wordpress database directory exists
-if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
-    echo "Init MariaDB..."
+# start mariadb in the background
+service mysql start
 
-    # init the db
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql
-    
-    # temp mariadb start to config it
-    mysqld_safe --user=mysql --datadir=/var/lib/mysql --skip-networking --skip-grant-tables &
-    MYSQL_PID=$!
+# create wordpress database
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
 
-    # wait for mariadb to start
-    echo "Wait for MariaDB to start..."
-    until mysqladmin ping --silent; do
-        sleep 1
-    done
-    echo "MariaDB started, config database..."
+# create normal wordpress user and grant privileges
+# if the user already exists, it will not create a new one
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
+    "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
+    "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';"
 
-    # create the db and users
-    mysql -u root << EOF
--- reload privilege tables
-FLUSH PRIVILEGES;
+# create admin user and grant privileges
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
+    "CREATE USER IF NOT EXISTS '${MYSQL_ADMIN_USER}'@'%' IDENTIFIED BY '${MYSQL_ADMIN_PASSWORD}';"
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e \
+    "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';"
 
--- set root password (using ALTER USER for newer MariaDB versions)
-ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${MYSQL_ROOT_PASSWORD}');
+# save changes: reload user permissions
+# this is necessary to ensure that the new user and privileges are recognized
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
 
--- create database
-CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+# stop mariadb
+mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
 
--- create user and grant privileges
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
-
--- create wordpress admin user
-CREATE USER IF NOT EXISTS '${MYSQL_ADMIN_USER}'@'%' IDENTIFIED BY '${MYSQL_ADMIN_PASSWORD}';
-GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';
-
--- remove anonymous users
-DELETE FROM mysql.user WHERE User='';
-
--- remove test database
-DROP DATABASE IF EXISTS test;
-
--- flush privileges
-FLUSH PRIVILEGES;
-EOF
-
-    # stop the temp mariadb instance
-    kill $MYSQL_PID
-    wait $MYSQL_PID
-
-    echo "Database init complete"
-else
-    echo "Database already init"
-fi
-
-# start mariadb normally in foreground
-echo "Starting MariaDB..."
-exec mysqld_safe --user=mysql --datadir=/var/lib/mysql
+# launch mariadb in safe mode
+exec mysqld_safe

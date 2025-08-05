@@ -135,15 +135,15 @@
 
 ## Notes
 ### What's mariaDB, wordpress, nginx? 
-- MariaDB
+- MariaDB - the filing cabinet with all the info
     - A db server (fork of Mysql)
     - Store your data for wordpress, eg. blog post, user, comments, settings etc.
     - Without it, wordpress won't have a place to keep dynamic content
-- Wordpress
+- Wordpress - the actual service team doing the work
     - A php-based web app (a CMS: content manager system)
     - It's the actual website you'll access through your browser
     - Connect to mariaDB to save & retrieve data
-- Nginx
+- Nginx - the front desk
     - A web server: it listens for incoming HTTP(S) requests
     - Server static content (html, css, js, image) and forward php requests to wordpress
     - Here it's also used to termiante SSL
@@ -343,7 +343,17 @@ Running as ```root``` inside containers is a major security vulnerability:
     | Handles logs                    | ✅ Redirects to log files safely    | ❌ Basic logging  |
     | Reads extra config              | ✅ Can read from `/etc/my.cnf` etc. | ✅                |
     | Runs in background              | ✅ (uses `nohup`, forked)           | ✅ or foreground  |
-
+### What's diff btw MariaDB and WordpressDB
+- Think of MariaDB like a filing cabinet:
+    - The cabinet itself = MariaDB server.
+    - One drawer inside it = the WordPress database.
+- How they interact
+    - WHen wordpress starts up, it connects to mariaDB using credentials (MYSQL_USER & MYSQL_PASSWORD) and the database name (MYSQL_DATABASE) from the .env
+    - All wordpress's dynamic data (posts, comments, settings) goes into tables inside that database
+### Useful docker cmdline
+- `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)
+- `docker compose up -d --build`: rebuild & run
+- `docker compose logs -f mariadb`: check logs 
 
 
 
