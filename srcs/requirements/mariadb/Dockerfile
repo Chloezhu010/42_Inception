@@ -16,6 +16,8 @@ RUN chmod +x /init_mariadb.sh
 # listen on port 3306 (mariadb default port)
 EXPOSE 3306
 
-# cmd to run when the container starts
-# launch mariadb in a "safe" mode (auto restarts if it crashes)
-CMD ["mysqld_safe"]
+# run the init script as the entrypoint
+ENTRYPOINT ["/init_mariadb.sh"]
+
+# # cmd to run when the container starts
+# CMD ["mysqld_safe"]
