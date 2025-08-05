@@ -350,10 +350,16 @@ Running as ```root``` inside containers is a major security vulnerability:
 - How they interact
     - WHen wordpress starts up, it connects to mariaDB using credentials (MYSQL_USER & MYSQL_PASSWORD) and the database name (MYSQL_DATABASE) from the .env
     - All wordpress's dynamic data (posts, comments, settings) goes into tables inside that database
-### Useful docker cmdline
+### Useful cmd line
 - `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)
 - `docker compose up -d --build`: rebuild & run
 - `docker compose logs -f mariadb`: check logs 
+- `docker exec -it mariadb mariadb -u root -p`: check inside mariadb
+    ```
+    SHOW DATABASES;
+    SELECT user, host FROM mysql.user;
+    ```
+    Should see: wordpress db, normal user, admin user
 
 
 

@@ -9,6 +9,11 @@ RUN apt-get update \
     # cleanup apt caches to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
+# create mysql user and set permissions
+RUN mkdir -p /var/run/mysqld \
+    && chown -R mysql:mysql /var/run/mysqld \
+    && chmod 755 /var/run/mysqld
+
 # copy init script into the container
 COPY tools/init_mariadb.sh /init_mariadb.sh
 RUN chmod +x /init_mariadb.sh

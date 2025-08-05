@@ -5,18 +5,27 @@ mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 
 # check if this is the 1st run (no mysql system db)
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    # initialize the database directory
-    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
-    # start mariadb in the background
-    mysqld_safe --user=mysql --skip-grant-tables &
-    # wait for mariadb to start
-    until mysqladmin ping --silent; do
-        sleep 1
-    done
+DATABASE_EXITS=false
+if [ -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+    echo "Custom database ${MYSQL_DATABASE} already exists"
+    DATABASE_EXITS=true
+else
+    echo "Custom database ${MYSQL_DATABASE} does not exist, will create"
+fi
 
-    # set root password and create database and users
-    mysql -u root << EOF
+# start mariadb temporarily to set up the database
+echo "Starting MariaDB temporarily to set up the database..."
+mysqld_safe --user=mysql &
+
+# wait for mariadb to start
+until mysqladmin ping --silent; do
+    sleep 1
+done
+echo "MariaDB is ready!"
+
+# set root password and create database and users
+echo "Setting up root password, database and users..."
+mysql -u root << EOF
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
@@ -26,10 +35,13 @@ GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ADMIN_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-    # stop temporary server
-    mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
-fi
+echo "Database and users set up successfully!"
+
+# stop temporary server
+echo "Shutting down temporary MariaDB server..."
+mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
 
 # launch mariadb in safe mode
+echo "Starting MariaDB in production mode..."
 # exec replaces the current shell with the command, making mysqld_safe PID 1
-exec mysqld_safe
+exec mysqld_safe --user=mysql
