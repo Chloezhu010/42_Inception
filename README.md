@@ -373,8 +373,35 @@ Running as ```root``` inside containers is a major security vulnerability:
     Should see: wordpress db, normal user, admin user
 - `docker exec -it wordpress php -v`: check php version
 - `docker exec -it wordpress ls /var/www/wordpress`: list all items in the wordpress folder
+- `docker compose ps`: check if containers are running
+- `docker-compose exec nginx nginx -t`: test config syntax
+- `docker-compose exec nginx nginx -s reload`: reload config
+- `curl -I http://localhost:8080`: test basic http response
+- Remove the default nginx site, otherwise error on serving static sites
+```
+# Remove the default nginx site
+docker-compose exec nginx rm /etc/nginx/sites-enabled/default
 
+# Reload nginx
+docker-compose exec nginx nginx -s reload
+```
+- Create a test html file for test
+```
+# Create a test HTML file in the wordpress volume
+docker-compose exec wordpress sh -c 'echo "<h1>Nginx is working!</h1>" > /var/www/wordpress/test.html'
 
+# Test accessing it
+curl http://localhost:8080/test.html
+```
+- Create a php info file for test
+```
+# Create a PHP info file
+docker-compose exec wordpress sh -c 'echo "<?php phpinfo(); ?>" > /var/www/wordpress/info.php'
+
+# Test PHP processing
+curl http://localhost:8080/info.php
+# Should return HTML with PHP information, not the raw PHP code
+```
 
 
 ### Reference

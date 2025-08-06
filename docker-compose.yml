@@ -19,7 +19,7 @@ services:
       - inception
   nginx:
     build: ./srcs/requirements/nginx
-    container_name: ngnix
+    container_name: nginx
     restart: unless-stopped
     env_file: .env
     ports:

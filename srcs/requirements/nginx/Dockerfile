@@ -10,7 +10,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # copy the defaut.conf into the container
-COPY conf/default.conf /etc/ngnix/conf.d/default.conf
+COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
 # listen on port 80 for now
 EXPOSE 80

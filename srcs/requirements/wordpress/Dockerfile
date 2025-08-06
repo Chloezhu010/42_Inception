@@ -9,6 +9,9 @@ RUN apt-get update \
     # cleanup apt caches to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
+# config php-fpm to listen on port 9000 from all interfaces
+RUN sed -i 's/listen =.*/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
+
 # downoad wordpress
 RUN wget https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz \
     && tar -xzf /tmp/wordpress.tar.gz -C /var/www/ \
