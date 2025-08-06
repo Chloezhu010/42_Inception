@@ -8,9 +8,19 @@ services:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception
+  wordpress:
+    build: ./srcs/requirements/wordpress
+    container_name: wordpress
+    restart: unless-stopped
+    env_file: .env
+    volumes: 
+      - wordpress_data:/var/www/wordpress
+    networks:
+      - inception
 
 volumes:
   mariadb_data:
+  wordpress_data:
 
 networks:
   inception:

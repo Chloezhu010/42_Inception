@@ -360,6 +360,8 @@ Running as ```root``` inside containers is a major security vulnerability:
     SELECT user, host FROM mysql.user;
     ```
     Should see: wordpress db, normal user, admin user
+- `docker exec -it wordpress php -v`: check php version
+- `docker exec -it wordpress ls /var/www/wordpress`: list all items in the wordpress folder
 
 
 
