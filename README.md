@@ -403,7 +403,6 @@ curl http://localhost:8080/info.php
 # Should return HTML with PHP information, not the raw PHP code
 ```
 
-
 ### Reference
 - [Docker docs](https://docs.docker.com/get-started/docker-overview/)
 - [What's Docker? How does it work?](https://devopscube.com/what-is-docker/)
