@@ -17,6 +17,19 @@ services:
       - wordpress_data:/var/www/wordpress
     networks:
       - inception
+  nginx:
+    build: ./srcs/requirements/nginx
+    container_name: ngnix
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8080:80"
+    volumes: 
+      - wordpress_data:/var/www/wordpress
+    networks:
+      - inception
+    depends_on:
+      - wordpress
 
 volumes:
   mariadb_data:

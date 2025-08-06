@@ -350,6 +350,17 @@ Running as ```root``` inside containers is a major security vulnerability:
 - How they interact
     - WHen wordpress starts up, it connects to mariaDB using credentials (MYSQL_USER & MYSQL_PASSWORD) and the database name (MYSQL_DATABASE) from the .env
     - All wordpress's dynamic data (posts, comments, settings) goes into tables inside that database
+### Why Ngnix setup needs a .conf fie
+- Nginx need a config file to know
+    - Where to find my website files (/var/www/wordpress)
+    - How to hande php fies (fwd them to php-fpm in the wordpress container)
+    - What domain to respond to (server_name)
+    - Security rules
+- Without a conf fie, Ngnix would only serve a default "it works" page and wouldn't know about wordpress at all
+### What's port 80 and 443
+- Port 80 is the standard port for HTTP, useful for initial testing (easy to connect without SSL)
+- Port 443 is the standard port for HTTPS (encrypted web traffic using SSL/TLS)
+
 ### Useful cmd line
 - `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)
 - `docker compose up -d --build`: rebuild & run
