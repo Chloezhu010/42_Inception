@@ -16,16 +16,12 @@ RUN sed -i 's/listen =.*/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
 COPY tools/init_wordpress.sh /init_wordpress.sh
 RUN chmod +x /init_wordpress.sh
 
-# # downoad wordpress
-# RUN wget https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz \
-#     && tar -xzf /tmp/wordpress.tar.gz -C /var/www/ \
-#     && rm /tmp/wordpress.tar.gz
-
-# # set permissions
-# RUN chown -R www-data:www-data /var/www/wordpress
-
 # listen on port 9000 (to talk to nginx)
 EXPOSE 9000
 
 # run the php-fpm as foreground mode
 ENTRYPOINT [ "/init_wordpress.sh" ]
+
+# copy the create wp-config script
+COPY tools/setup_wp_config.sh /setup_wp_config.sh
+RUN chmod +x /setup_wp_config.sh && /setup_wp_config.sh
