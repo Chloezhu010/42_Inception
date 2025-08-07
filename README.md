@@ -360,6 +360,16 @@ Running as ```root``` inside containers is a major security vulnerability:
 ### What's port 80 and 443
 - Port 80 is the standard port for HTTP, useful for initial testing (easy to connect without SSL)
 - Port 443 is the standard port for HTTPS (encrypted web traffic using SSL/TLS)
+### What's TLS, SSL?
+- SSL (secure sockets layer) and TLS (transport layer security) are protocols used to encrypt communication over the internet
+- TLS is the mordern version of SSL. It secures
+    - Connection to websites (https)
+    - Logins (wordpress admin)
+    - Sensitive data (eg. pwd)
+### How to config HTTPS servers
+- Ref: [https://nginx.org/en/docs/http/configuring_https_servers.html](https://nginx.org/en/docs/http/configuring_https_servers.html)
+- 
+
 
 ### Useful cmd line
 - `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)
