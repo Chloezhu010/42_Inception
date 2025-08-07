@@ -5,7 +5,7 @@ FROM debian:bookworm
 # refresh package index
 RUN apt-get update \
     # install php and extensions
-    && apt-get install -y php php-mysqli php-fpm php-cli wget curl tar \
+    && apt-get install -y php php-mysqli php-fpm php-cli wget curl tar mariadb-client \
     # cleanup apt caches to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +21,3 @@ EXPOSE 9000
 
 # run the php-fpm as foreground mode
 ENTRYPOINT [ "/init_wordpress.sh" ]
-
-# copy the create wp-config script
-COPY tools/setup_wp_config.sh /setup_wp_config.sh
-RUN chmod +x /setup_wp_config.sh && /setup_wp_config.sh

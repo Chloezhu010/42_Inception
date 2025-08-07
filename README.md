@@ -412,7 +412,7 @@ docker-compose exec wordpress sh -c 'echo "<?php phpinfo(); ?>" > /var/www/wordp
 curl http://localhost:8080/info.php
 # Should return HTML with PHP information, not the raw PHP code
 ```
-
+- `curl -v --tlsv1.2 https://czhu.42.fr --insecure`: verify TLS version
 ### Reference
 - [Docker docs](https://docs.docker.com/get-started/docker-overview/)
 - [What's Docker? How does it work?](https://devopscube.com/what-is-docker/)

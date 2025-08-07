@@ -17,6 +17,8 @@ services:
       - wordpress_data:/var/www/wordpress
     networks:
       - inception
+    depends_on:
+      - mariadb
   nginx:
     build: ./srcs/requirements/nginx
     container_name: nginx
