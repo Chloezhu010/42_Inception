@@ -45,6 +45,10 @@ if [ ! -f "/usr/local/bin/wp" ]; then
     mv /tmp/wp-cli.phar /usr/local/bin/wp
 fi
 
+# change directory to wordpress
+cd /var/www/wordpress
+echo "Changed directory to $(pwd)"
+
 # check if wordpress is installed
 if ! wp core is-installed --allow-root 2>/dev/null; then
     echo "installing wordpress..."
