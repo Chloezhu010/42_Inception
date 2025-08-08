@@ -30,9 +30,48 @@ if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
     echo "wp-config.php created successfully."
 fi
 
+# wait for mariadb to be ready
+echo "Waiting for MariaDB to be ready..."
+until mysql -h mariadb -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1" >/dev/null 2>&1; do
+    sleep 1
+done
+echo "MariaDB is ready."
+
+# download wp-cli for wp mgmt
+if [ ! -f "/usr/local/bin/wp" ]; then
+    echo "Downloading WP-CLI..."
+    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /tmp/wp-cli.phar
+    chmod +x /tmp/wp-cli.phar
+    mv /tmp/wp-cli.phar /usr/local/bin/wp
+fi
+
+# check if wordpress is installed
+if ! wp core is-installed --allow-root 2>/dev/null; then
+    echo "installing wordpress..."
+    # install wordpress using wp-cli
+    wp core install \
+        --url="https://${DOMAIN_NAME}" \
+        --title="42 Inception Wordpress" \
+        --admin_user="${WP_ADMIN_USER}" \
+        --admin_password="${WP_ADMIN_PASSWORD}" \
+        --admin_email="${WP_ADMIN_EMAIL}" \
+        --allow-root
+    # create a normal user
+    echo "Creating normal user..."
+    wp user create \
+        "${WP_USER}" \
+        "${WP_USER_EMAIL}" \
+        --user_pass="${WP_USER_PASSWORD}" \
+        --role=author \
+        --allow-root
+    echo "Wordpress installed successfully."
+else
+    echo "Wordpress is already installed."
+fi
+
 # set correct permissions
 chown -R www-data:www-data /var/www/wordpress
-chown -R 755 /var/www/wordpress
+chmod -R 755 /var/www/wordpress
 
 # start php-fpm in foreground
 echo "Starting PHP-FPM..."

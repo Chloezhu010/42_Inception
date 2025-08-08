@@ -12,6 +12,9 @@ RUN apt-get update \
 # config php-fpm to listen on port 9000 from all interfaces
 RUN sed -i 's/listen =.*/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
 
+# create wordpress dir
+RUN mkdir -p /var/www/wordpress
+
 # create startup script
 COPY tools/init_wordpress.sh /init_wordpress.sh
 RUN chmod +x /init_wordpress.sh
