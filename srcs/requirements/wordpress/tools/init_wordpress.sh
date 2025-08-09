@@ -17,11 +17,11 @@ else
 fi
 
 # read secrets from files
-MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
-MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
-WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password.txt)
+MYSQL_PASSWORD=$(cat /run/secrets/db_password.txt)
+MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password.txt)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password.txt)
+WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password.txt)
 
 # create wp-config.php if it does not exist
 if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
