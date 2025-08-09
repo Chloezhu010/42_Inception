@@ -4,6 +4,11 @@
 mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 
+# read secrets from files
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password.txt)
+MYSQL_PASSWORD=$(cat /run/secrets/db_password.txt)
+MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password.txt)
+
 # check if this is the 1st run (no mysql system db)
 DATABASE_EXITS=false
 if [ -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
@@ -22,11 +27,6 @@ until mysqladmin ping --silent; do
     sleep 1
 done
 echo "MariaDB is ready!"
-
-# read secrets from files
-MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password.txt)
-MYSQL_PASSWORD=$(cat /run/secrets/db_password.txt)
-MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password.txt)
 
 # set root password and create database and users
 echo "Setting up root password, database and users..."

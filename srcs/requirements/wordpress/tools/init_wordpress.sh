@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# read secrets from files
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password.txt)
+MYSQL_PASSWORD=$(cat /run/secrets/db_password.txt)
+MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password.txt)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password.txt)
+WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password.txt)
+
 # check if wordpress is already installed
 if [ ! -f "/var/www/wordpress/wp-config-sample.php" ]; then
     echo "Wordpress not found, downloading..."
@@ -15,13 +22,6 @@ if [ ! -f "/var/www/wordpress/wp-config-sample.php" ]; then
 else
     echo "Wordpress already installed."
 fi
-
-# read secrets from files
-MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password.txt)
-MYSQL_PASSWORD=$(cat /run/secrets/db_password.txt)
-MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password.txt)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password.txt)
-WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password.txt)
 
 # create wp-config.php if it does not exist
 if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
