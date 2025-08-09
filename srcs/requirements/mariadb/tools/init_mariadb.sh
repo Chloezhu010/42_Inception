@@ -23,6 +23,11 @@ until mysqladmin ping --silent; do
 done
 echo "MariaDB is ready!"
 
+# read secrets from files
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+MYSQL_ADMIN_PASSWORD=$(cat /run/secrets/db_admin_password)
+
 # set root password and create database and users
 echo "Setting up root password, database and users..."
 mysql -u root << EOF

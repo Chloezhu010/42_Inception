@@ -366,9 +366,14 @@ Running as ```root``` inside containers is a major security vulnerability:
     - Connection to websites (https)
     - Logins (wordpress admin)
     - Sensitive data (eg. pwd)
-### How to config HTTPS servers
-- Ref: [https://nginx.org/en/docs/http/configuring_https_servers.html](https://nginx.org/en/docs/http/configuring_https_servers.html)
-- 
+### What's redis cache
+- A fast, in-memory database that used to temp store frequently accessed data
+    - store data in RAM (not on disk), usually sub-millisecond response time
+    - support key-value pairs, lists, sets, sorted sets etc.
+- Redis cache for wordpress
+    - Instread of 20+ sql queries to mariadb when loadign a page, WP can store the query results in Redis
+    - Reduce load on mariadb, response time for the user, and server CPU usage
+    
 
 
 ### Useful cmd line
