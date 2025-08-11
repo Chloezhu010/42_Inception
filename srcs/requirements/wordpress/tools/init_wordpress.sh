@@ -32,7 +32,13 @@ if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
     sed -i "s/password_here/${MYSQL_PASSWORD}/" /var/www/wordpress/wp-config.php
     sed -i "s/localhost/mariadb/" /var/www/wordpress/wp-config.php
 
-    echo "wp-config.php created successfully."
+    # add redis config to wp-config.php
+    echo "Adding Redis configuration to wp-config.php..."
+    cat >> /var/www/wordpress/wp-config.php << 'EOF'
+define('WP_REDIS_HOST', 'redis');
+define('WP_REDIS_PORT', 6379);
+EOF
+    echo "wp-config.php created successfully with redis config."
 fi
 
 # wait for mariadb to be ready

@@ -418,6 +418,11 @@ curl http://localhost:8080/info.php
 # Should return HTML with PHP information, not the raw PHP code
 ```
 - `curl -v --tlsv1.2 https://czhu.42.fr --insecure`: verify TLS version
+- `docker exec -it mariadb printenv`: check if sensible info is presented
+- Verfiy redis is working
+    - `docker exec -it redis redis-cli ping`
+    
+
 ### Reference
 - [Docker docs](https://docs.docker.com/get-started/docker-overview/)
 - [What's Docker? How does it work?](https://devopscube.com/what-is-docker/)

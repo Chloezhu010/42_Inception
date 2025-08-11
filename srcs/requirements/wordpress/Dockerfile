@@ -5,7 +5,7 @@ FROM debian:bookworm
 # refresh package index
 RUN apt-get update \
     # install php and extensions
-    && apt-get install -y php php-mysqli php-fpm php-cli wget curl tar mariadb-client \
+    && apt-get install -y php php-mysqli php-fpm php-cli php-redis wget curl tar mariadb-client \
     # cleanup apt caches to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
