@@ -27,6 +27,7 @@ services:
       - inception
     depends_on:
       - mariadb
+      - redis
   nginx:
     build: ./srcs/requirements/nginx
     container_name: nginx
