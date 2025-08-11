@@ -79,10 +79,17 @@ if ! wp core is-installed --allow-root 2>/dev/null; then
         --user_pass="${WP_USER_PASSWORD}" \
         --role=author \
         --allow-root
+    # install & activate redis cache plugin
+    echo "Installing Redis Cache plugin..."
+    wp plugin install redis-cache --activate --allow-root
+    wp redis enable --allow-root
+    echo "Redis Cache plugin installed and activated."
     echo "Wordpress installed successfully."
 else
     echo "Wordpress is already installed."
 fi
+
+
 
 # set correct permissions
 chown -R www-data:www-data /var/www/wordpress
