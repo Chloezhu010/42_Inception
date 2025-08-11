@@ -32,13 +32,13 @@ if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
     sed -i "s/password_here/${MYSQL_PASSWORD}/" /var/www/wordpress/wp-config.php
     sed -i "s/localhost/mariadb/" /var/www/wordpress/wp-config.php
 
-    # add redis config to wp-config.php
-    echo "Adding Redis configuration to wp-config.php..."
-    cat >> /var/www/wordpress/wp-config.php << EOF
-define('WP_REDIS_HOST', 'redis');
-define('WP_REDIS_PORT', 6379);
-EOF
-    echo "wp-config.php created successfully with redis config."
+#     # add redis config to wp-config.php
+#     echo "Adding Redis configuration to wp-config.php..."
+#     cat >> /var/www/wordpress/wp-config.php << EOF
+# define('WP_REDIS_HOST', 'redis');
+# define('WP_REDIS_PORT', 6379);
+# EOF
+#     echo "wp-config.php created successfully with redis config."
 fi
 
 # wait for mariadb to be ready
@@ -48,22 +48,22 @@ until mysql -h mariadb -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1" >/d
 done
 echo "MariaDB is ready."
 
-# wait for redis to be ready
-echo "Waiting for Redis to be ready..."
-until php -r "
-\$redis = new Redis();
-try {
-    \$redis->connect('redis', 6379);
-    echo 'Redis connected successfully';
-    \$redis->close();
-    exit(0);
-} catch (Exception \$e) {
-    exit(1);
-}
-" >/dev/null 2>&1; do
-    sleep 1
-done
-echo "Redis is ready."
+# # wait for redis to be ready
+# echo "Waiting for Redis to be ready..."
+# until php -r "
+# \$redis = new Redis();
+# try {
+#     \$redis->connect('redis', 6379);
+#     echo 'Redis connected successfully';
+#     \$redis->close();
+#     exit(0);
+# } catch (Exception \$e) {
+#     exit(1);
+# }
+# " >/dev/null 2>&1; do
+#     sleep 1
+# done
+# echo "Redis is ready."
 
 # download wp-cli for wp mgmt
 if [ ! -f "/usr/local/bin/wp" ]; then
@@ -105,14 +105,14 @@ fi
 chown -R www-data:www-data /var/www/wordpress
 chmod -R 755 /var/www/wordpress
 
-# install & activate redis cache plugin
-echo "Installing Redis Cache plugin..."
-wp plugin install redis-cache --activate --allow-root
-wp redis enable --allow-root
-# fix permissions for object-cache.php
-chown www-data:www-data /var/www/wordpress/wp-content/object-cache.php
-chmod 644 /var/www/wordpress/wp-content/object-cache.php
-echo "Redis Cache plugin installed and activated."
+# # install & activate redis cache plugin
+# echo "Installing Redis Cache plugin..."
+# wp plugin install redis-cache --activate --allow-root
+# wp redis enable --allow-root
+# # fix permissions for object-cache.php
+# chown www-data:www-data /var/www/wordpress/wp-content/object-cache.php
+# chmod 644 /var/www/wordpress/wp-content/object-cache.php
+# echo "Redis Cache plugin installed and activated."
 
 # start php-fpm in foreground
 echo "Starting PHP-FPM..."
