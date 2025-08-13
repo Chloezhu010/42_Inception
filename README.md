@@ -392,6 +392,25 @@ Running as ```root``` inside containers is a major security vulnerability:
 ### What's docker-network and its purpose
 - Docker network creates isolated communication channel btw containers
 - Outside containers or docker projects cannot access / interfere
+### Wordpress volume data
+- TODO: verify the data dir path
+
+### Mariadb volume data
+- TODO: verify the data dir path
+    - `docker volume ls`: get the name of the volumes
+    - `docker volume inspect 42_inception_mariadb_data`: inspect the path of the data dir
+
+- Login to the database as root
+    - `docker exec -it mariadb mariadb -u root -p`: check inside mariadb
+    ```
+    SHOW DATABASES;
+    SELECT user, host FROM mysql.user;
+    ```
+    Should see: wordpress db, normal user, admin user
+- Login to the database as normal user
+    - `docker exec -it mariadb mariadb -u $MYSQL_USER -p`
+- Login to the database as admin user
+    - `docker exec -it mariadb mariadb -u $MYSQL_ADMIN_USER -p`
 
 ### Useful cmd line
 - `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)
