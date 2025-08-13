@@ -373,8 +373,25 @@ Running as ```root``` inside containers is a major security vulnerability:
 - Redis cache for wordpress
     - Instread of 20+ sql queries to mariadb when loadign a page, WP can store the query results in Redis
     - Reduce load on mariadb, response time for the user, and server CPU usage
-    
-
+### How Docker vs Docker-compose work
+- Docker creates isolated containers, that packages your app with everything it needs to run (code, lib, dependencies)
+- Docker-compose orchestrates multiple containers with networking and volumes. Instead of managing containers individually, you define your entire multi-container setup in one yaml file
+### Docker vs VM
+- Docker shares OS kernel (lightweight)
+    - Typically only 10-100 MB
+    - Startup time in seconds
+    - Lower CPU and memory overhead
+- Each VM runs a complete OS (heavier)
+    - Typically several GB
+    - Startup time in minutes
+    - High resource consumption due to OS duplication
+### Explain what SSL/TLS do in Nginx
+- SSL/ TLS encrypts the communication between your browser and the web server
+- SSL certificate: like website passport
+- TLS v1.2/ v1.3: morden encrypt communication protocol vs SSL
+### What's docker-network and its purpose
+- Docker network creates isolated communication channel btw containers
+- Outside containers or docker projects cannot access / interfere
 
 ### Useful cmd line
 - `docker compose up -d`: start all service in the yml file, run containers in the background (detached mode)

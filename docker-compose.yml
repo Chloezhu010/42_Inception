@@ -65,7 +65,17 @@ secrets:
 
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/czhu/data/mariadb
+      o: bind
   wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/czhu/data/wordpress
+      o: bind
 
 networks:
   inception:
