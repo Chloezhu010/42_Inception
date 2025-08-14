@@ -68,13 +68,15 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /Users/chloe/data/mariadb
+      # device: /Users/chloe/data/mariadb
+      device: /home/czhu/data/mariadb
       o: bind
   wordpress_data:
     driver: local
     driver_opts:
       type: none
-      device: /Users/chloe/data/wordpress
+      # device: /Users/chloe/data/wordpress
+      device: /home/czhu/data/wordpress
       o: bind
 
 networks:
